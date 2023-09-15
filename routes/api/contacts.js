@@ -1,40 +1,30 @@
 const express = require("express");
-const Joi = require("joi");
+const { schemas } = require("../../models/contact");
 
 const { HttpError } = require("../../helpers/index");
-
-const schema = Joi.object({
-  name: Joi.string().min(3).max(30).required(),
-  email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-    .required(),
-  phone: Joi.string().min(8).max(12).required(),
-});
-
-const router = express.Router();
+const { isValidId, validateBody } = require("../../middleware/index");
 
 const {
   listContacts,
   getContactById,
   addContact,
   removeContact,
-  updateContact,
+  // updateContact,
+  updateStatusContact,
 } = require("../../models/contacts");
+
+const router = express.Router();
 
 router.get("/", async (req, res, next) => {
   try {
     const data = await listContacts();
-    res.json({
-      status: "success",
-      code: 200,
-      data,
-    });
+    res.json(data);
   } catch (err) {
     next(err);
   }
 });
 
-router.get("/:contactId", async (req, res, next) => {
+router.get("/:contactId", isValidId, async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const data = await getContactById(contactId.slice(1));
@@ -48,23 +38,9 @@ router.get("/:contactId", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
-  try {
-    const { error } = schema.validate(req.body);
+router.post("/", validateBody(schemas.addSchema), addContact);
 
-    if (error) {
-      throw HttpError(400, error.message);
-    }
-    const data = await addContact(req.body);
-    res.status(201).json({
-      data,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.delete("/:contactId", async (req, res, next) => {
+router.delete("/:contactId", isValidId, async (req, res, next) => {
   try {
     const data = await removeContact(req.params.contactId.slice(1));
 
@@ -74,20 +50,27 @@ router.delete("/:contactId", async (req, res, next) => {
   }
 });
 
-router.put("/:contactId", async (req, res, next) => {
-  try {
-    const contactId = req.params.contactId.slice(1);
-    const { error } = schema.validate(req.body);
+router.patch(
+  "/:contactId/favorite",
+  isValidId,
+  validateBody(schemas.updateFavoriteSchema),
+  updateStatusContact
+);
 
-    if (error) {
-      throw HttpError(400, error.message);
-    }
+// router.put("/:contactId", async (req, res, next) => {
+//   try {
+//     const contactId = req.params.contactId.slice(1);
+//     const { error } = schemas.addSchema.validate(req.body);
 
-    const data = await updateContact(contactId, req.body);
-    res.status(200).json({ data });
-  } catch (err) {
-    next(err);
-  }
-});
+//     if (error) {
+//       throw HttpError(400, error.message);
+//     }
+
+//     const data = await updateContact(contactId, req.body);
+//     res.status(200).json({ data });
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 module.exports = router;

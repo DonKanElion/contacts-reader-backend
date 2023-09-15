@@ -2,9 +2,6 @@ const mongoose = require("mongoose");
 const app = require("./app");
 const { DB_HOST } = process.env;
 
-// const DB_HOST =
-//   "mongodb+srv://DonKanElion:uSLjnJQGrnxNplk9@cluster0.tio2ex9.mongodb.net/db-contcts";
-
 mongoose.set("strictQuery", true);
 
 mongoose
@@ -24,5 +21,3 @@ mongoose
 // uSLjnJQGrnxNplk9
 
 // mongodb+srv://DonKanElion:uSLjnJQGrnxNplk9@cluster0.tio2ex9.mongodb.net/db-contacts
-
-// mongodb+srv://DonKanElion:uSLjnJQGrnxNplk9@cluster0.tio2ex9.mongodb.net/db-contcts?retryWrites=true&w-majority

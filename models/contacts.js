@@ -1,64 +1,64 @@
-const fs = require("fs/promises");
-const path = require("path");
-const { nanoid } = require("nanoid");
+const { Contact } = require("../models/contact");
+
 const { HttpError } = require("../helpers/index");
 
-const contactsPath = path.join(__dirname, "./contacts.json");
-
 const listContacts = async () => {
-  const data = await fs.readFile(contactsPath);
-  return JSON.parse(data);
+  return await Contact.find();
 };
 
 const getContactById = async (contactId) => {
-  const contacts = await listContacts();
-  return contacts.find((item) => item.id === contactId);
+  return await Contact.findById(contactId);
 };
 
-const addContact = async (body) => {
-  const { name, email, phone } = body;
+const addContact = async (req, res, next) => {
+  const { email } = req.body;
 
-  const contacts = await listContacts();
-  const newContact = {
-    id: nanoid(),
-    name,
-    email,
-    phone,
-  };
+  const checkContactOnEmail = await Contact.find({ email });
 
-  contacts.push(newContact);
+  if (checkContactOnEmail.length === 1) {
+    return res.status(200).json({ message: "This email have in database." });
+  }
 
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return newContact;
+  const result = await Contact.create(req.body);
+  res.status(201).json(result);
 };
 
 const removeContact = async (contactId) => {
-  const contacts = await listContacts();
-  const newContacts = contacts.filter((item) => item.id !== contactId);
+  const result = await Contact.findByIdAndRemove(contactId);
 
-  if (contacts.length === newContacts.length) {
+  if (!result) {
     throw HttpError(404, "Not found");
   }
-
-  await fs.writeFile(contactsPath, JSON.stringify(newContacts, null, 2));
 
   return { message: "Contact deleted" };
 };
 
-const updateContact = async (contactId, body) => {
-  const { name, email, phone } = body;
-  const contacts = await listContacts();
-  const index = contacts.findIndex((item) => item.id === contactId);
+// const updateContact = async (contactId, body) => {
+// const { name, email, phone } = body;
+// const contacts = await listContacts();
+// const index = contacts.findIndex((item) => item.id === contactId);
+// if (index === -1) {
+//   return { code: 404, message: "Not found" };
+// }
+// contacts[index] = { id: contactId, name, email, phone };
+// await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+// return contacts[index];
+// };
 
-  if (index === -1) {
-    return { code: 404, message: "Not found" };
-  }
+// const updateStatusContact = async (req, res) => {
+//   const { contactId } = req.params;
+//   const result = await Contact.findByIdAndUpdate(contactId, req.body, {new: true});
+//   if (!result) {
+//       throw HttpError(404, "Not found");
+//   }
+//   res.json(result);
+// }
 
-  contacts[index] = { id: contactId, name, email, phone };
+const updateStatusContact = async (contactId, body) => {
+  // const { name, email, phone, favorite } = body;
 
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-  return contacts[index];
+  console.log(body, contactId)
+  // console.log("Req.body: ", name, email, phone, favorite, contactId);
 };
 
 module.exports = {
@@ -66,5 +66,6 @@ module.exports = {
   getContactById,
   addContact,
   removeContact,
-  updateContact,
+  // updateContact,
+  updateStatusContact,
 };
