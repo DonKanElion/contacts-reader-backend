@@ -9,7 +9,6 @@ const {
   getContactById,
   addContact,
   removeContact,
-  // updateContact,
   updateStatusContact,
 } = require("../../models/contacts");
 
@@ -56,21 +55,5 @@ router.patch(
   validateBody(schemas.updateFavoriteSchema),
   updateStatusContact
 );
-
-// router.put("/:contactId", async (req, res, next) => {
-//   try {
-//     const contactId = req.params.contactId.slice(1);
-//     const { error } = schemas.addSchema.validate(req.body);
-
-//     if (error) {
-//       throw HttpError(400, error.message);
-//     }
-
-//     const data = await updateContact(contactId, req.body);
-//     res.status(200).json({ data });
-//   } catch (err) {
-//     next(err);
-//   }
-// });
 
 module.exports = router;

@@ -33,32 +33,16 @@ const removeContact = async (contactId) => {
   return { message: "Contact deleted" };
 };
 
-// const updateContact = async (contactId, body) => {
-// const { name, email, phone } = body;
-// const contacts = await listContacts();
-// const index = contacts.findIndex((item) => item.id === contactId);
-// if (index === -1) {
-//   return { code: 404, message: "Not found" };
-// }
-// contacts[index] = { id: contactId, name, email, phone };
-// await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-// return contacts[index];
-// };
+const updateStatusContact = async (req, res) => {
+  const { contactId } = req.params;
 
-// const updateStatusContact = async (req, res) => {
-//   const { contactId } = req.params;
-//   const result = await Contact.findByIdAndUpdate(contactId, req.body, {new: true});
-//   if (!result) {
-//       throw HttpError(404, "Not found");
-//   }
-//   res.json(result);
-// }
-
-const updateStatusContact = async (contactId, body) => {
-  // const { name, email, phone, favorite } = body;
-
-  console.log(body, contactId)
-  // console.log("Req.body: ", name, email, phone, favorite, contactId);
+  const result = await Contact.findByIdAndUpdate(contactId.slice(1), req.body, {
+    new: true,
+  });
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+  res.json(result);
 };
 
 module.exports = {
@@ -66,6 +50,5 @@ module.exports = {
   getContactById,
   addContact,
   removeContact,
-  // updateContact,
   updateStatusContact,
 };

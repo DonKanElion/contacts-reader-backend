@@ -16,8 +16,3 @@ mongoose
     console.log("Database connect error 🙁", error.message);
     process.exit(1);
   });
-
-// DonKanElion
-// uSLjnJQGrnxNplk9
-
-// mongodb+srv://DonKanElion:uSLjnJQGrnxNplk9@cluster0.tio2ex9.mongodb.net/db-contacts
